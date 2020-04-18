@@ -42,6 +42,7 @@ services:
       - mongo
       - zipkin
       - kafka
+      - keycloak
     volumes:
       # If you want to enable HTTPS, please map your local directory where you have the certificate for the CAPI spring boot application to be able to load it.
       # Also make sure that the server,ssl.key environment variables are not commented.
@@ -133,3 +134,15 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  keycloak:
+    container_name: capi-keycloak
+    image: jboss/keycloak
+    ports:
+      - 8081:8080
+      - 9990:9990
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/realm-export-kc.json
+    volumes:
+      - ./realm-export-kc.json:/tmp/realm-export-kc.json
