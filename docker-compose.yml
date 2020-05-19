@@ -38,6 +38,9 @@ services:
       - gateway.cache.zookeeper.host=zookeeper:2181
       - gateway.cache.zookeeper.path=/discovery/hazelcast
       - gateway.cache.zookeeper.group.key=capi
+      - capi.authorization.keys.endpoint=https://keycloak:8443/auth/realms/capi/protocol/openid-connect/certs
+      - http.client.ssl.trust-store=/keys/truststore.jks
+      - http.client.ssl.trust-store-password=capigateway
     links:
       - mongo
       - zipkin
@@ -106,9 +109,17 @@ services:
       - gateway.cache.zookeeper.host=zookeeper:2181
       - gateway.cache.zookeeper.path=/discovery/hazelcast
       - gateway.cache.zookeeper.group.key=capi
+      - keycloak.auth-server-url=https://keycloak:8443/auth
+      - keycloak.realm=capi
+      - keycloak.resource=rest
+      - keycloak.public-client=true
+      - keycloak.truststore=/keys/truststore.jks
+      - keycloak.truststore-password=capigateway
+      - javax.net.ssl.trustStore=/keys/truststore.jks
     links:
       - mongo
       - zookeeper
+      - keycloak
     volumes:
       # If you want to enable HTTPS, please map your local directory where you have the certificate for the CAPI spring boot application to be able to load it.
       - ./keys:/keys
@@ -138,7 +149,7 @@ services:
     container_name: capi-keycloak
     image: jboss/keycloak
     ports:
-      - 8081:8080
+      - 8443:8443
       - 9990:9990
     environment:
       KEYCLOAK_USER: admin
@@ -146,3 +157,5 @@ services:
       KEYCLOAK_IMPORT: /tmp/realm-export-kc.json
     volumes:
       - ./realm-export-kc.json:/tmp/realm-export-kc.json
+      - ./keys/capi.crt:/etc/x509/https/tls.crt
+      - ./keys/privkey1.pem:/etc/x509/https/tls.key
