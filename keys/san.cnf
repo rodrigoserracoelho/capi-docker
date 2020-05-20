@@ -1,0 +1,20 @@
+[ req ]
+default_bits = 2048
+x509_extensions = extensions
+distinguished_name = req_distinguished_name
+[ req_distinguished_name ]
+countryName                = BE
+stateOrProvinceName        = Brussels
+localityName               = Brussels
+organizationName           = SURISOFT
+commonName                 = capigateway.eu
+[ extensions ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+basicConstraints       = CA:FALSE
+keyUsage               = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth
+subjectAltName         = @alternate_names
+[alternate_names]
+DNS.1 = localhost
+DNS.2 = keycloak
