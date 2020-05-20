@@ -1,17 +1,38 @@
-For Docker follow the instructions bellow:
-* Clone this project.
-* Execute
-    $ sudo docker-compose up -d
-* If you are starting a fresh Mongo instance, a default CAPI Client will be created for you.
-* Request your first access token: curl -X POST https://localhost:8080/oauth/token -H 'Authorization: Basic d2ViLXB1Ymxpc2hlcjp3ZWItY2xpZW50LXNlY3JldA==' -H 'Content-Type: multipart/form-data;' -F grant_type=client_credentials -F 'response_type=access_token'
-* Go to: https://localhost:8080/swagger-ui.html
-* Authenticate with the token you obtained from the previous step. (Don't forget to specify: Bearer <the token>)
-* Publish your first API: 
-    curl -X POST "https://localhost:8080/route/swagger-rest" -H "accept: application/json" -H "Content-Type: application/json" -d "<your-api>" (see Example of an API definition)
-* Imagine that your context was: test and one of your GET path was /user you can then test: http://localhost:8380/gateway/test/user
+# CAPI Gateway (Docker)
+> Light API Gateway implemented with Apache Camel
+### To install CAPI Gateway for Docker, follow the instructions bellow:
+_To run CAPI Gateway on localhost, a certificate, trust store and private keys are already generated_
+1.  Clone this project.
+``
+$ git clone https://github.com/rodrigoserracoelho/capi-docker.git
+``
+2.  Run it
+``
+$ cd capi-docker
+``
+``
+$ sudo docker-compose up -d
+``
 
-Docker compose will create instances of Grafana, Prometheus and Zipkin, but if you wish to use already existing instances you just need to change this environment variables:
-
-* api.gateway.prometheus.endpoint=http://prometheus:9090
-* api.gateway.zipkin.endpoint=http://zipkin:9411/api/v2/spans
-* api.gateway.grafana.endpoint=http://localhost:8080/grafana
+3. Because of a Keycloak limitation (only running on localhost), you will need to add the **keycloak** to your hosts file.
+``
+$ vi /etc/hosts
+``
+``
+127.0.0.1 keycloak
+``
+4. There is already a client created on Keycloak, so you can request your first token:
+``
+curl --location --request POST 'https://keycloak:8443/auth/realms/capi/protocol/openid-connect/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--header 'Authorization: Basic bWFuYWdlcjo5ODg0MDRkMy0zOGJkLTQyNDYtYTkyMy04Yjc3MmMyMTNiODg=' \
+--data-urlencode 'grant_type=client_credentials'
+``
+5. Copy the provided _access_token_ and visit CAPI API Manager Swagger page
+``
+https://localhost:8080/swagger-ui.html
+``
+6. You also call directly the CAPI API Manager to list for example all deployed API's:
+``
+curl -X GET "https://localhost:8080/route" -H "accept: application/json" -H "Authorization: Bearer <provided access token>"
+``
