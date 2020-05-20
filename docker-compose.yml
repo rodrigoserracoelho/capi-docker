@@ -158,4 +158,4 @@ services:
     volumes:
       - ./realm-export-kc.json:/tmp/realm-export-kc.json
       - ./keys/capi.crt:/etc/x509/https/tls.crt
-      - ./keys/privkey1.pem:/etc/x509/https/tls.key
+      - ./keys/capi.key:/etc/x509/https/tls.key
