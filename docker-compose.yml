@@ -18,6 +18,7 @@ services:
       - api.gateway.traffic.inspector.kafka.topic=capi-traffic-inspector
       - api.gateway.traffic.inspector.kafka.groupId=capiGroup
       - api.gateway.traffic.inspector.kafka.broker=kafka:9092
+      - api.gateway.manager.origin=http://localhost:4200
       - server.ssl.enabled=true
       - server.ssl.key-store-type=PKCS12
       - server.ssl.key-store=/keys/capi.p12
@@ -40,7 +41,7 @@ services:
       - gateway.cache.zookeeper.group.key=capi
       - capi.authorization.keys.endpoint=https://keycloak:8443/auth/realms/capi/protocol/openid-connect/certs
       - http.client.ssl.trust-store=/keys/truststore.jks
-      - http.client.ssl.trust-store-password=capigateway
+      - http.client.ssl.trust-store-password=capigateway 
     links:
       - mongo
       - zipkin
