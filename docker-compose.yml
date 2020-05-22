@@ -96,7 +96,6 @@ services:
       - spring.data.mongodb.username=capi
       - spring.data.mongodb.password=capi
       - spring.data.mongodb.database=capi
-      # Optional, uncomment if you want to enable HTTPS on your CAPI Server Rest, if so, please read also the volumes section of this service.
       - server.ssl.enabled=true
       - server.ssl.key-store-type=PKCS12
       - server.ssl.key-store=/keys/capi.p12
