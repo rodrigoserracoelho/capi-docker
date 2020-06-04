@@ -48,8 +48,6 @@ services:
       - kafka
       - keycloak
     volumes:
-      # If you want to enable HTTPS, please map your local directory where you have the certificate for the CAPI spring boot application to be able to load it.
-      # Also make sure that the server,ssl.key environment variables are not commented.
       - ./keys:/keys
   mongo:
     container_name: capi-mongo
@@ -86,6 +84,8 @@ services:
       - prometheus
     volumes:
       - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ./capi-statistics.json:/etc/grafana/provisioning/dashboards/capi-statistics.json
   capi-rest:
     container_name: capi-rest
     image: surisoft/capi-gateway-rest:1.3.2
@@ -121,7 +121,6 @@ services:
       - zookeeper
       - keycloak
     volumes:
-      # If you want to enable HTTPS, please map your local directory where you have the certificate for the CAPI spring boot application to be able to load it.
       - ./keys:/keys
   zookeeper:
     container_name: capi-zookeeper
