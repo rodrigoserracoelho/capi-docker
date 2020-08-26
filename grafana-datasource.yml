@@ -28,3 +28,25 @@ datasources:
       tlsClientKey: ""
     version: 1
     editable: true
+  - name: Zipkin
+    type: zipkin
+    access: proxy
+    orgId: 1
+    url: http://zipkin:9411
+    password:
+    user:
+    database:
+    basicAuth: false
+    basicAuthUser:
+    basicAuthPassword:
+    withCredentials:
+    isDefault: false
+    jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
+    secureJsonData:
+      tlsCACert: ""
+      tlsClientCert: ""
+      tlsClientKey: ""
+    version: 1
+    editable: true
