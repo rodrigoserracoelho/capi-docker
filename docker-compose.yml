@@ -1,24 +1,29 @@
-version: "2"
+version: "3"
 services:
   capi:
     container_name: capi
-    image: surisoft/capi-gateway:1.3.2
+    image: surisoft/capi-gateway:1.4.1
     ports:
       - "8380:8380"
     environment:
       - spring.profiles.active=tst
       - api.gateway.api.running.inspector.period=5000
       - api.gateway.api.throttling.inspector.period=5000
-      - api.gateway.grafana.create.panels=false
       - api.gateway.prometheus.endpoint=http://prometheus:9090
       - api.gateway.zipkin.endpoint=http://zipkin:9411/api/v2/spans
-      - api.gateway.grafana.endpoint=http://localhost:8080/grafana
       - api.gateway.error.endpoint=localhost:8380/capi-error
       - api.gateway.traffic.inspector.enabled=true
       - api.gateway.traffic.inspector.kafka.topic=capi-traffic-inspector
       - api.gateway.traffic.inspector.kafka.groupId=capiGroup
       - api.gateway.traffic.inspector.kafka.broker=kafka:9092
       - api.gateway.manager.origin=http://localhost:4200
+      - api.gateway.grafana.endpoint=http://grafana:3000/api/dashboards/db
+      - api.gateway.grafana.create.dashboard=true
+      - api.gateway.grafana.user=admin
+      - api.gateway.grafana.password=admin
+      - api.gateway.grafana.token=
+      - api.gateway.grafana.basic.auth=true
+      - api.gateway.grafana.datasource=Prometheus
       - server.ssl.enabled=true
       - server.ssl.key-store-type=PKCS12
       - server.ssl.key-store=/keys/capi.p12
@@ -42,13 +47,10 @@ services:
       - capi.authorization.keys.endpoint=https://keycloak:8443/auth/realms/capi/protocol/openid-connect/certs
       - http.client.ssl.trust-store=/keys/truststore.jks
       - http.client.ssl.trust-store-password=capigateway 
-    links:
-      - mongo
-      - zipkin
-      - kafka
-      - keycloak
     volumes:
       - ./keys:/keys
+    networks:
+      capi-network:
   mongo:
     container_name: capi-mongo
     image: mongo
@@ -58,6 +60,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=capi
     ports:
       - "27017:27017"
+    networks:
+      capi-network:
     volumes:
       - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
       - ./mongo/db/:/data/db/
@@ -66,13 +70,15 @@ services:
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
+    networks:
+      capi-network:
   prometheus:
     container_name: capi-prometheus
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
-    links:
-      - capi
+    networks:
+      capi-network:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
   grafana:
@@ -80,15 +86,15 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
-    links:
-      - prometheus
+    networks:
+      capi-network:
     volumes:
       - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasources.yml
       - ./dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
       - ./capi-statistics.json:/etc/grafana/provisioning/dashboards/capi-statistics.json
   capi-rest:
     container_name: capi-rest
-    image: surisoft/capi-gateway-rest:1.3.2
+    image: surisoft/capi-gateway-rest:1.4.0
     ports:
       - "8080:8080"
     environment:
@@ -116,15 +122,15 @@ services:
       - keycloak.truststore=/keys/truststore.jks
       - keycloak.truststore-password=capigateway
       - javax.net.ssl.trustStore=/keys/truststore.jks
-    links:
-      - mongo
-      - zookeeper
-      - keycloak
+    networks:
+      capi-network:
     volumes:
       - ./keys:/keys
   zookeeper:
     container_name: capi-zookeeper
     image: confluentinc/cp-zookeeper:latest
+    networks:
+      capi-network:
     ports:
       - 2181:2181
     environment:
@@ -137,6 +143,8 @@ services:
       - zookeeper
     ports:
       - 9092:9092
+    networks:
+      capi-network:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -150,6 +158,8 @@ services:
     ports:
       - 8443:8443
       - 9990:9990
+    networks:
+      capi-network:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
@@ -158,3 +168,5 @@ services:
       - ./realm-export-kc.json:/tmp/realm-export-kc.json
       - ./keys/capi.crt:/etc/x509/https/tls.crt
       - ./keys/capi.key:/etc/x509/https/tls.key
+networks:
+  capi-network:
